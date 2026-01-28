@@ -1,0 +1,14 @@
+# node
+**/node_modules
+
+# environment variables
+server/.env
+
+# database
+server/database.db
+
+# react build
+client/build
+
+# misc
+.DS_Store
