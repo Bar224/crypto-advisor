@@ -19,7 +19,7 @@ const MEMES = [
   },
   {
     title: "People still trying to get rich from stocks be like in 2026",
-    img: "https://i.imgflip.com/s6dhc.jpg", // Leonardo DiCaprio toast meme
+    img: "https://i.imgflip.com/s6dhc.jpg", 
   },
 ];
 

@@ -1,5 +1,7 @@
-// src/components/Onboarding.js
+
 import { useMemo, useState } from "react";
+
+// Onboarding configuration: selectable assets, investor profiles, and dashboard content modules
 
 const ASSETS = ["BTC", "ETH", "SOL", "DOGE", "ADA", "XRP"];
 const INVESTOR_TYPES = ["HODLer", "Day Trader", "NFT Collector", "DeFi Explorer"];
@@ -10,11 +12,11 @@ export default function Onboarding({
   onFinish,
   initialPreferences = null, // { assets:[], investorType:"", content:[] }
   mode = "onboarding", // "onboarding" | "edit"
-  onCancel, // במצב edit - לחזור לדאשבורד
+  onCancel, // function, only in edit mode
 }) {
   const [step, setStep] = useState(1);
 
-  // ערכים התחלתיים (מצב עריכה)
+  
   const initialAssets = Array.isArray(initialPreferences?.assets)
     ? initialPreferences.assets.map((x) => String(x).trim()).filter(Boolean)
     : [];
@@ -30,6 +32,8 @@ export default function Onboarding({
   const [content, setContent] = useState(initialContent);
 
   const isEdit = mode === "edit";
+
+  // Step validation: enforce required choices before progressing
 
   const canNext = useMemo(() => {
     if (step === 1) return assets.length > 0;
@@ -51,6 +55,8 @@ export default function Onboarding({
   function back() {
     if (step > 1) setStep((s) => s - 1);
   }
+  
+  // Build preferences payload and persist via parent handler (saved in DB on server)
 
   function finish() {
     if (!canNext) return;
@@ -281,7 +287,7 @@ const styles = {
     marginTop: 14,
   },
 
-  // ✅ Content grid 2x2
+  
   grid2: {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",

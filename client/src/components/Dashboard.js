@@ -1,4 +1,4 @@
-// src/components/Dashboard.js
+
 import { useMemo, useState } from "react";
 import CoinPrices from "./CoinPrices";
 import AIInsight from "./AIInsight";
@@ -12,6 +12,8 @@ export default function Dashboard({
   onLogout,
   onEditPreferences,
 }) {
+  // Build dashboard sections dynamically based on user-selected content preferences
+
   const sections = useMemo(() => {
     const chosen = new Set(preferences?.content || []);
     const items = [];
@@ -32,7 +34,7 @@ export default function Dashboard({
       });
     }
 
-    // חשוב שזה יתאים בדיוק לשם ב-Onboarding
+
     if (chosen.has("AI Insights")) {
       items.push({
         key: "ai",
@@ -63,10 +65,12 @@ export default function Dashboard({
 
   // sectionKey -> "up" | "down" | undefined
   const [votes, setVotes] = useState({});
-  // sectionKey -> boolean (בקשה רצה)
+  // sectionKey -> boolean 
   const [voteBusy, setVoteBusy] = useState({});
   // sectionKey -> string
   const [voteError, setVoteError] = useState({});
+
+  // Optimistic voting UX: update UI immediately, then persist vote to backend (rollback on error)
 
   async function vote(sectionKey, dir) {
     if (voteBusy[sectionKey]) return;
@@ -104,6 +108,8 @@ export default function Dashboard({
       setVoteBusy((prev) => ({ ...prev, [sectionKey]: false }));
     }
   }
+  
+  // Route section keys to matching components
 
   function renderSectionContent(key) {
     if (key === "news") return <MarketNews />;
@@ -131,7 +137,7 @@ export default function Dashboard({
           </div>
         </div>
 
-        {/* כפתורים בצד ימין */}
+        
         <div style={styles.topbarActions}>
           <button
             style={styles.secondaryBtn}

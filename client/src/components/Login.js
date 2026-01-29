@@ -1,14 +1,16 @@
-// src/components/Login.js
+
 import { useState } from "react";
 import { login, saveToken } from "../api";
 
 export default function Login({ onLoggedIn, onSwitchToSignup }) {
-  // ✅ מתחילים ריק כדי שלא יהיה כיתוב בתוך השדות
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Login flow: request JWT, store it locally, then notify parent to reload session state
 
   async function handleSubmit(e) {
     e.preventDefault();

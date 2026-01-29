@@ -6,6 +6,8 @@ export default function AIInsight() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Fetch fresh AI insight (protected endpoint). Includes retry and loading skeleton UX.
+
   async function load() {
     try {
       setLoading(true);
@@ -66,7 +68,7 @@ function Skeleton() {
 const styles = {
   header: {
     display: "flex",
-    justifyContent: "flex-end", // ✅ רק הכפתור יושב בימין
+    justifyContent: "flex-end", 
     alignItems: "center",
     marginBottom: 8,
     padding: 0,
@@ -74,8 +76,7 @@ const styles = {
     background: "transparent",
   },
 
-  // אם עדיין יש לך טקסט מודל בקוד, זה ישמור עליו “שקט” בעיצוב.
-  // (אם הסרת אותו מה-JSX, זה פשוט לא ישומש)
+  
   model: {
     display: "none",
     fontSize: 12,

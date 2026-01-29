@@ -1,15 +1,17 @@
-// client/src/components/Signup.js
+
 import { useState } from "react";
 import { saveToken } from "../api";
 
 export default function Signup({ onSignedUp, onSwitchToLogin }) {
-  // ✅ מתחילים ריק כדי שלא יהיה כיתוב בתוך השדות
+  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Safe JSON parsing helper for consistent error messages
 
   async function safeJson(res) {
     const text = await res.text();
@@ -19,6 +21,8 @@ export default function Signup({ onSignedUp, onSwitchToLogin }) {
       return { raw: text };
     }
   }
+
+  // Signup flow: register user, then auto-login to immediately obtain JWT token
 
   async function submit(e) {
     e.preventDefault();
@@ -159,7 +163,7 @@ const styles = {
   },
 
   card: {
-    width: 360, // זהה ללוגאין
+    width: 360, 
     padding: 20,
     borderRadius: 14,
     border: "1px solid #e5e7eb",

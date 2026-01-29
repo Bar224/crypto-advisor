@@ -17,6 +17,7 @@ export default function App() {
 
   const [editPrefs, setEditPrefs] = useState(false);
 
+  // App bootstrap: if token exists, validate session (/api/me) and load saved preferences
   useEffect(() => {
     async function init() {
       setError("");
@@ -55,6 +56,8 @@ export default function App() {
     init();
   }, []);
 
+  // Logout clears local token and resets app state
+
   function logout() {
     clearToken();
     setUser(null);
@@ -62,6 +65,8 @@ export default function App() {
     setEditPrefs(false);
     setScreen("login");
   }
+  
+  // Save onboarding preferences to backend and update local state
 
   async function handleFinishOnboarding(prefs) {
     setError("");
@@ -79,15 +84,17 @@ export default function App() {
 
   if (loading) return <div style={pageStyles.base}>Loading...</div>;
 
+  // Decide whether to show onboarding/edit flow based on saved preferences
+
   const shouldShowOnboarding =
     Boolean(user) && (prefsLoading ? false : editPrefs || !preferences);
 
-  // ✅ רק אם לא מחוברים – רקע של התמונה
+  
   const isAuthScreen = !user;
 
   return (
     <div style={isAuthScreen ? pageStyles.authPage : pageStyles.base}>
-      {/* ✅ שכבת כהות עדינה כדי שהכרטיס יהיה קריא */}
+      
       {isAuthScreen ? <div style={pageStyles.overlay} /> : null}
 
       <div style={pageStyles.container}>
@@ -117,7 +124,7 @@ export default function App() {
           )
         ) : (
           <>
-            {/* אפשר להשאיר את הכותרת או להעביר לתוך Login/Signup */}
+            
             <h1 style={{ marginTop: 0, color: isAuthScreen ? "white" : "#111827", zIndex: 1 }}>
               
             </h1>
@@ -155,7 +162,7 @@ const pageStyles = {
     padding: 20,
   },
 
-  // ✅ רקע תמונה למסכי login/signup
+  // login/signup
   authPage: {
     minHeight: "100vh",
     display: "grid",

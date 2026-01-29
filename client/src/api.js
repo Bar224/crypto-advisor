@@ -1,5 +1,6 @@
-// src/api.js
 
+
+// Token storage key for JWT (used for authenticated API calls)
 const TOKEN_KEY = "moveo_token";
 
 export function saveToken(token) {
@@ -14,6 +15,7 @@ export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+// Centralized API helper: JSON handling + error normalization + optional Bearer auth header
 async function request(path, { method = "GET", body, auth = false } = {}) {
   const headers = {};
 
@@ -90,6 +92,7 @@ export function getAiInsight() {
 }
 
 /* ===== Votes ===== */
+// Voting API wrapper (protected): vote = "up" | "down" | "none"
 
 export function voteSection(section, vote) {
   // vote = "up" | "down"

@@ -1,4 +1,4 @@
-// src/components/MarketNews.js
+
 import { useEffect, useMemo, useState } from "react";
 
 export default function MarketNews() {
@@ -7,6 +7,8 @@ export default function MarketNews() {
   const [updatedAt, setUpdatedAt] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Normalize/validate URLs so external links always open reliably
 
   function safeUrl(maybeUrl) {
     try {
@@ -17,6 +19,8 @@ export default function MarketNews() {
       return "https://cryptopanic.com/";
     }
   }
+
+  // Fetch top market news items (protected). Sends JWT manually for this endpoint.
 
   async function load() {
     setLoading(true);
@@ -44,7 +48,7 @@ export default function MarketNews() {
 
       const list = Array.isArray(data.items) ? data.items : [];
 
-      // ✅ מנקים/מבטיחים URL תקין לכל פריט כדי ש-Open תמיד יעבוד
+      
       const normalized = list.map((n) => ({
         ...n,
         url: safeUrl(n?.url),
@@ -68,7 +72,8 @@ export default function MarketNews() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ✅ הגבלה ל-4 ידיעות
+  // Limit to 4 items for a compact dashboard layout
+
   const topItems = useMemo(() => items.slice(0, 4), [items]);
 
   if (loading) {
@@ -107,13 +112,13 @@ export default function MarketNews() {
           const src = n?.source || "Unknown source";
           const dateTxt = n?.publishedAt ? timeAgoOrDate(n.publishedAt) : "";
 
-          // ✅ key ייחודי תמיד (גם אם url חוזר על עצמו)
+          
           const key = `${n?.url || "u"}-${n?.publishedAt || "t"}-${i}`;
 
           return (
             <a
               key={key}
-              href={n.url} // ✅ תמיד URL תקין בזכות safeUrl
+              href={n.url} 
               target="_blank"
               rel="noreferrer"
               style={styles.item}
@@ -184,6 +189,8 @@ function SkeletonList() {
   );
 }
 
+// Human-friendly timestamp formatting (minutes/hours ago, otherwise date)
+
 function timeAgoOrDate(iso) {
   const d = new Date(iso);
   const diffMs = Date.now() - d.getTime();
@@ -206,9 +213,9 @@ const styles = {
   headerRow: {
   display: "flex",
   justifyContent: "flex-end",
-  padding: 0,                 // ❌ בלי רווח מיותר
-  border: "none",             // ❌ בלי מסגרת
-  background: "transparent",  // ❌ בלי רקע
+  padding: 0,                 
+  border: "none",             
+  background: "transparent",  
   },
 
 

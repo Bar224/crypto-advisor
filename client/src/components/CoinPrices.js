@@ -1,4 +1,4 @@
-// src/components/CoinPrices.js
+
 import { useEffect, useMemo, useState } from "react";
 
 export default function CoinPrices({ assets = ["BTC"] }) {
@@ -7,8 +7,10 @@ export default function CoinPrices({ assets = ["BTC"] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // טריגר לרענון בלי reload של כל הדף
+  
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Normalize selected assets into a stable query string for API requests
 
   const query = useMemo(() => {
     const cleaned = (assets || [])
@@ -19,6 +21,8 @@ export default function CoinPrices({ assets = ["BTC"] }) {
 
   useEffect(() => {
     let cancelled = false;
+
+    // Fetch coin prices for selected assets; supports manual refresh without full page reload
 
     async function load() {
       if (!query) {
@@ -33,7 +37,7 @@ export default function CoinPrices({ assets = ["BTC"] }) {
       try {
         const res = await fetch(`/api/prices?assets=${encodeURIComponent(query)}`);
 
-        // קריאה בטוחה של JSON
+       
         let data = {};
         try {
           data = await res.json();
@@ -116,6 +120,8 @@ export default function CoinPrices({ assets = ["BTC"] }) {
   );
 }
 
+// Visual indicator for 24h percentage change (up/down)
+
 function ChangeBadge({ value }) {
   const safe = Number.isFinite(value) ? value : 0;
   const isUp = safe >= 0;
@@ -143,7 +149,7 @@ const styles = {
 
   topRow: {
   display: "flex",
-  justifyContent: "flex-end", // ✅ דוחף את הכפתור לימין
+  justifyContent: "flex-end", 
   alignItems: "center",
   gap: 8,
   padding: 0,
@@ -197,9 +203,9 @@ const styles = {
 
   row: {
   display: "grid",
-  gridTemplateColumns: "48px minmax(0, 1fr) max-content", // היה 56px
+  gridTemplateColumns: "48px minmax(0, 1fr) max-content", 
   alignItems: "center",
-  gap: 4, // היה 6 → עוד דחיפה שמאלה
+  gap: 4, 
 
   padding: 14,
   borderRadius: 16,
@@ -229,7 +235,7 @@ const styles = {
 
   badge: {
   minWidth: 0,
-  padding: "6px 6px", // היה 6px 8px
+  padding: "6px 6px", 
   borderRadius: 999,
   fontWeight: 900,
   fontSize: 12,

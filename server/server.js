@@ -1,6 +1,6 @@
-// server/server.js
 
-// Load environment variables
+
+// Load environment variables for secrets/keys (JWT, external APIs)
 require("dotenv").config();
 console.log("JWT_SECRET loaded?", !!process.env.JWT_SECRET);
 console.log("CRYPTOPANIC_KEY loaded?", !!process.env.CRYPTOPANIC_KEY);
@@ -32,6 +32,7 @@ app.get("/api/health", (req, res) => {
 
 /* =========================
    JWT Middleware
+   // JWT auth middleware: validates Bearer token and attaches user payload to req.user
 ========================= */
 function auth(req, res, next) {
   const header = req.headers.authorization;
@@ -53,6 +54,7 @@ function auth(req, res, next) {
 
 /* =========================
    Auth - Register
+   // Register: create a new user with bcrypt-hashed password (email must be unique)
 ========================= */
 app.post("/api/auth/register", (req, res) => {
   const { name, email, password } = req.body || {};
@@ -74,6 +76,7 @@ app.post("/api/auth/register", (req, res) => {
 
 /* =========================
    Auth - Login (JWT)
+   // Login: verify credentials and issue a JWT token (7 days) for protected endpoints
 ========================= */
 app.post("/api/auth/login", (req, res) => {
   const { email, password } = req.body || {};
@@ -105,6 +108,7 @@ app.post("/api/auth/login", (req, res) => {
 
 /* =========================
    Me
+   // Me: returns basic user profile for the currently authenticated user
 ========================= */
 app.get("/api/me", auth, (req, res) => {
   const user = db
@@ -154,6 +158,7 @@ app.post("/api/preferences", auth, (req, res) => {
 
 /* =========================
    Preferences - Get
+   // Preferences GET: returns saved onboarding preferences (parsed from JSON strings)
 ========================= */
 app.get("/api/preferences", auth, (req, res) => {
   const userId = req.user.userId;
@@ -177,6 +182,8 @@ app.get("/api/preferences", auth, (req, res) => {
 /* =========================
    AI Insight (HuggingFace Router)
    GET /api/ai-insight
+   // AI Insight: generates short personalized insight using HuggingFace router with model fallbacks
+// Uses user preferences (assets + investorType) to tailor the prompt.
 ========================= */
 app.get("/api/ai-insight", auth, async (req, res) => {
   try {
@@ -192,7 +199,7 @@ app.get("/api/ai-insight", auth, async (req, res) => {
       "google/gemma-1.1-2b-it",
     ];
 
-    // להביא העדפות (כדי להתאים את הטקסט)
+    
     const row = db
       .prepare("SELECT assets, investorType FROM preferences WHERE userId = ?")
       .get(req.user.userId);
@@ -275,6 +282,7 @@ app.get("/api/ai-insight", auth, async (req, res) => {
 /* =========================
    CoinGecko - Prices (cache + fallback)
    GET /api/prices?assets=BTC,ETH
+   // CoinGecko prices: in-memory cache to reduce rate limits and provide fallback for UI stability
 ========================= */
 const COINGECKO_ID_BY_SYMBOL = {
   BTC: "bitcoin",
@@ -285,12 +293,12 @@ const COINGECKO_ID_BY_SYMBOL = {
   XRP: "ripple",
 };
 
-// cache בזיכרון למחירים (כדי להפחית 502/RateLimit)
+// cache
 let PRICES_CACHE = new Map(); // key: "BTC,ETH" -> { prices, updatedAt, cachedAt }
-const PRICES_TTL = 2 * 60 * 1000; // 2 דקות
+const PRICES_TTL = 2 * 60 * 1000; // 2 minutes
 
 function pricesFallback(symbols) {
-  // fallback "חכם" - מחזיר 0 במקום לזרוק שגיאה (ה-UI עדיין יציג משהו)
+  // fallback 
   return symbols.map((s) => ({
     symbol: s,
     usd: 0,
@@ -315,7 +323,7 @@ app.get("/api/prices", async (req, res) => {
 
   const cacheKey = symbols.join(",");
 
-  // cache טרי
+  // cache
   const cached = PRICES_CACHE.get(cacheKey);
   if (cached && Date.now() - cached.cachedAt < PRICES_TTL) {
     return res.json({ prices: cached.prices, updatedAt: cached.updatedAt, cached: true });
@@ -366,7 +374,7 @@ app.get("/api/prices", async (req, res) => {
 
     return res.json(payload);
   } catch (err) {
-    // אם יש cache ישן - נחזיר אותו
+
     if (cached) {
       return res.json({
         prices: cached.prices,
@@ -376,7 +384,7 @@ app.get("/api/prices", async (req, res) => {
       });
     }
 
-    // fallback כדי לא להפיל UI
+    
     return res.json({
       prices: pricesFallback(symbols),
       updatedAt: new Date().toISOString(),
@@ -389,6 +397,7 @@ app.get("/api/prices", async (req, res) => {
 /* =========================
    Market News – cache + fallback + 4 items + valid URL always
    GET /api/news
+   // Market News: fetches from CryptoPanic with cache + safe URL normalization + fallback list
 ========================= */
 
 const NEWS_FALLBACK = [
@@ -418,10 +427,10 @@ const NEWS_FALLBACK = [
   },
 ];
 
-// cache בזיכרון
+// cache
 let NEWS_CACHE = null;
 let NEWS_CACHE_AT = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 דקות
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 function safeUrl(maybeUrl) {
   try {
@@ -511,6 +520,7 @@ app.get("/api/news", auth, async (req, res) => {
 
 /* =========================
    Votes (supports up/down/none)
+   // Votes: stores per-user feedback per dashboard section (up/down/none). "none" deletes the row.
 ========================= */
 app.post("/api/vote", auth, (req, res) => {
   const userId = req.user.userId;
@@ -528,7 +538,7 @@ app.post("/api/vote", auth, (req, res) => {
 
   const updatedAt = new Date().toISOString();
 
-  // אם vote=none - מוחקים הצבעה
+  // vote=none deletes existing vote
   if (vote === "none") {
     db.prepare("DELETE FROM votes WHERE userId = ? AND section = ?").run(userId, section);
     return res.json({ message: "Vote cleared", section, vote, updatedAt });
@@ -558,6 +568,7 @@ app.use((req, res, next) => {
 
 /* =========================
    Start server
+   // Start HTTP server (PORT comes from hosting provider in production
 ========================= */
 app.listen(PORT, () => {
   console.log("Server running on http://localhost:" + PORT);
